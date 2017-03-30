@@ -80,7 +80,7 @@ class ChunkedFineUploader(BaseFineUploader):
     def __init__(self, data, concurrent=True, *args, **kwargs):
         super(ChunkedFineUploader, self).__init__(data, *args, **kwargs)
         self.concurrent = concurrent
-        self.total_parts = data.get('qqtotalparts')
+        self.total_parts = data.get('qqtotalparts', 1) or 1
         self.part_index = data.get('qqpartindex')
 
     @property
@@ -128,6 +128,7 @@ class ChunkedFineUploader(BaseFineUploader):
                 with self.storage.open(part, 'rb') as source:
                     final_file.write(source.read())
         shutil.rmtree(self._abs_chunks_path)
+        open("%s/done" % self.file_path, "a").close()
 
     def _save_chunk(self):
         return self.storage.save(self.chunk_file, self.file)
